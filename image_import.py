@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 #
-
-import os
-import time
+import argparse
 import filecmp
 import multiprocessing as mp
-import sys
+import os
 import shutil
+import time
 
 
 def get_destination_path(cachepath, srcfile):
@@ -36,7 +35,7 @@ def get_destination_filename(destpath, fname, srcfile):
     destination_file = os.path.join(destpath, fname.lower())
     print("To: ", destination_file, destpath, fname)
     if os.path.exists(destination_file):
-        cnt = 0;
+        cnt = 0
         if filecmp.cmp(srcfile, destination_file, shallow=False):
             print("have: %s as %s" % (srcfile, destination_file))
             destination_file = None
@@ -82,8 +81,14 @@ def copy_worker(input, output):
 
 
 if __name__ == "__main__":
-    base_dir = "P:\\"
-    cards = [ "g:\\DCIM", "/Volumes/NO NAME", "/Volumes/EOS_DIGITAL/" ]
+    parser = argparse.ArgumentParser(description="Import images to archive")
+    parser.add_argument('-b', '--basedir',
+                        help='root of image archive', required=True)
+    parser.add_argument('-c', '--card',
+                        help='root of a card', action='append', required=True)
+    args = parser.parse_args()
+    base_dir = args.basedir
+    cards = args.card
     n_workers = 5
     stat_queue = mp.Queue()
     copy_queue = mp.Queue()
